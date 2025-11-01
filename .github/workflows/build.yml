@@ -1,0 +1,36 @@
+name: Build INAV Custom RFF405V3
+
+on:
+  push:
+    branches:
+      - main
+      - rff405v3-custom
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build cmake gcc-arm-none-eabi binutils-arm-none-eabi python3
+
+      - name: Build firmware
+        run: |
+          mkdir -p obj
+          cd obj
+          cmake -G Ninja -DTARGET=RFF405V3 ..
+          ninja
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: RFF405V3_firmware
+          path: |
+            obj/*.hex
+            obj/*.bin
